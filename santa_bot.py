@@ -334,6 +334,7 @@ if __name__ == '__main__':
     init_db()
     executor.start_polling(dp, skip_updates=True)
 
+
 # import random
 #
 # colleagues = ['A', 'B', 'C', 'D','E', 'F', 'G']
@@ -342,5 +343,4 @@ if __name__ == '__main__':
 # offset = [colleagues[-1]] + colleagues[:-1]
 # for santa, receiver in zip(colleagues, offset):
 #      print(santa, "Дарит подарок", receiver)
-
 
