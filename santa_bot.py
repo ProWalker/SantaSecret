@@ -182,7 +182,7 @@ def init_db():
         users_db = {
             'users': []
         }
-        with open('users.json', 'w') as users:
+        with open('users.json', 'a') as users:
             json.dump(users_db, users)
 
     if not os.path.isfile('games.json'):
@@ -292,6 +292,7 @@ async def get_user_wishlist(message: types.Message, state: FSMContext):
 async def write_letter_to_santa(message: types.Message, state: FSMContext):
     letter = message.text
     await state.update_data(letter_to_santa=letter)
+
     await RegisterOrder.next()
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     keyboard.add(
@@ -314,7 +315,137 @@ async def register_finish(message: types.Message, state: FSMContext):
         await state.finish()
 
 
+    user_data = await state.get_data()
+    add_user(user_data)
+    await state.finish()
+    await message.answer('🎅', reply_markup=keyboard)
+
+
+@dp.message_handler(text='Отправить письмо санте!')
+async def wish_sheet(message: types.Message):
+    keyboard = types.InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    buttons = [
+        types.InlineKeyboardButton(text='Посмотреть список желаний:', callback_data='Посмотреть список желаний:'),
+    ]
+    keyboard.row(*buttons)
+    await message.answer('Посмотрите список участников и желаемые подарки!', reply_markup=keyboard)
+
+
+@dp.callback_query_handler(text='Посмотреть список желаний:')
+async def random_choice(call: types.CallbackQuery):
+
+    keyboard = types.InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    buttons = [
+        types.InlineKeyboardButton(text='Посмотреть список желаний участников!', callback_data='список')
+    ]
+    keyboard.row(*buttons)
+    await call.message.answer('Вы зарегистрированы на игру. Ожидайте сообщения о начале игры!')
+    await call.answer()
+    for i in range(3):
+        await call.message.answer(f'{i}')
+
+    # with open('users.json', 'r') as users:
+    #     users_db = json.load(users)
+
+    # await message.answer()
+    # for wish in game_data["user_wishlist"]:
+    #     await message.answer(
+    #         fmt.text(
+    #             fmt.text(wish),
+    #         ), reply_markup=types.ReplyKeyboardRemove()
+    #     )
+
+
+    user_id = str(call.from_user.id)
+    # await bot.forward_message(chat_id=user_id, from_chat_id=message.from_user.id, message_id=message.message_id)
+    # user_date_1 = datetime.datetime(2021, 12, 18, 17, 56, 10)
+    # user_date_2 = datetime.datetime(2021, 12, 18, 17, 57, 10)
+
+    user_date_1 = datetime.datetime.today() + timedelta(minutes=1)
+    user_date_2 = datetime.datetime.today() + timedelta(minutes=2)
+
+    flag_1 = 0
+    flag_2 = 0
+    while True:
+        date_today = datetime.datetime.today()
+
+        # if user_date_1.date() == date_today.date():
+        time.sleep(10)
+        if user_date_1 < date_today:
+            users_1 = [2021, 12, 31, 12, 00, 00]
+            while flag_1 <= len(users_1)-1:
+                flag_1 += 1
+
+                await asyncio.sleep(1)
+                await bot.send_message(user_id, 'Игра: x началась!')
+                if flag_1 == len(users_1):
+                    break
+        print(1, date_today)
+        # if user_date_2.date() == date_today.date():
+
+        if user_date_2 < date_today:
+            users_2 = [2021, 12, 31, 12, 00, 00]
+            while flag_2 != len(users_2):
+                flag_2 += 1
+                await asyncio.sleep(1)
+                await bot.send_message(user_id, 'Игра: y началась!')
+                if flag_2 == len(users_2):
+                    break
+        print(2, date_today)
+
+        if user_date_2 + timedelta(seconds=30) < date_today:
+            await bot.send_message(user_id, f'{date_today}--')
+            break
+    await bot.send_message(user_id, 'end')
+
+
+
+
+
 # !! it`s final handler____________________________________________________________
+
+
+# @dp.message_handler()
+# async def random_choice(message: types.Message):
+#     await message.answer('Вы зарегистрированы на игру. Ожидайте сообщения о начале игры!')
+#     user_date1 = datetime.datetime(2021, 12, 17, 14, 50, 30)
+#     user_date2 = datetime.datetime(2021, 12, 17, 14, 50, 30)
+#
+#     while True:
+#         date_today = datetime.datetime.today()
+#         if user_date1 < date_today:
+#             colleagues = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+#             random.shuffle(colleagues)
+#             offset = [colleagues[-1]] + colleagues[:-1]
+#             for santa, receiver in zip(colleagues, offset):
+#                 print(santa, "Дарит подарок", receiver)
+#             await bot.send_message(message.from_user.id, 'Начинаем!')
+#             break
+#         if user_date2 < date_today:
+#             colleagues = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+#             random.shuffle(colleagues)
+#             offset = [colleagues[-1]] + colleagues[:-1]
+#             for santa, receiver in zip(colleagues, offset):
+#                 print(santa, "Дарит подарок", receiver)
+#             await bot.send_message(message.from_user.id, 'Начинаем!')
+#             break
+
+
+# @dp.message_handler(text='Начинаем!')
+# async def random_choice(message: types.Message):
+#     if message.text == 'Начинаем!':
+#         for user in users:
+#                 await message.answer(
+#                     fmt.text(
+#                     fmt.text("Жеребьевка в игре “Тайный Санта” проведена! Спешу сообщить кто тебе выпал:\n\n"),
+#                     fmt.text(f'Имя:{bot_name.username}'),
+#                     fmt.text(f'Email:{bot_name.username}'),
+#                     fmt.text(f'Письмо Санте:{bot_name.username}'),
+#                     fmt.text(f'Wish list:{bot_name.username}'),
+#
+#                 )
+#                 )
+
 
 @dp.message_handler()
 async def name_game(message: types.Message):
@@ -330,17 +461,26 @@ async def name_game(message: types.Message):
                              reply_markup=keyboard)
 
 
+# if __name__ == '__main__':
+#     init_db()
+#     executor.start_polling(dp, skip_updates=True)
+#
+#
+# date_today = datetime.datetime.today() + timedelta(seconds=10)
+# print(datetime.datetime.today())
+
+
+
 if __name__ == '__main__':
-    init_db()
     executor.start_polling(dp, skip_updates=True)
 
 
-# import random
-#
-# colleagues = ['A', 'B', 'C', 'D','E', 'F', 'G']
-#
-# random.shuffle(colleagues)
-# offset = [colleagues[-1]] + colleagues[:-1]
-# for santa, receiver in zip(colleagues, offset):
-#      print(santa, "Дарит подарок", receiver)
 
+
+#
+# user_date = datetime.datetime(2021, 12, 31, 15, 39, 00)
+# # user_date = datetime.datetime(2021, 12, 17, 14, 46, 00)
+# print(user_date)
+# date_today = datetime.datetime.today() + timedelta(seconds=10)
+# print(date_today)
+# count_date = date_today - user_date
