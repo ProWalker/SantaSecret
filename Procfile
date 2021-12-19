@@ -1,1 +1,1 @@
-web: python3 santa_bot.py
+worker: python3 santa_bot.py
