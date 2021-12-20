@@ -5,18 +5,12 @@ import smtplib
 import ssl
 
 from dotenv import load_dotenv
-from game_helper import create_pairs
+from game_helper import create_pairs, get_game_users
 
 
 def get_games_db():
     with open('games.json', 'r') as games_db:
         return json.load(games_db)
-
-
-def get_game_users(game_id):
-    with open('users.json', 'r') as users_db:
-        users = json.load(users_db)
-        return [user for user in users['users'] if user['game_id'] == game_id]
 
 
 def send_mail(receiver_email, message):

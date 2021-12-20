@@ -1,3 +1,6 @@
+import json
+
+
 def create_pairs(users):
     if len(users) < 2:
         return []
@@ -11,3 +14,9 @@ def create_pairs(users):
         pairs.append(pair)
 
     return pairs
+
+
+def get_game_users(game_id):
+    with open('users.json', 'r') as users_db:
+        users = json.load(users_db)
+        return [user for user in users['users'] if user['game_id'] == game_id]

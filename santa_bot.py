@@ -23,6 +23,8 @@ import aiogram.utils.markdown as fmt
 
 from dotenv import load_dotenv
 
+from game_helper import get_game_users
+
 load_dotenv()
 token = os.getenv("TG_BOT_TOKEN")
 loop = asyncio.get_event_loop()
@@ -39,6 +41,10 @@ class RegisterOrder(StatesGroup):
     user_wishlist = State()
     letter_to_santa = State()
     register_finish = State()
+
+
+class GetWishlistsOrder(StatesGroup):
+    game_id = State()
 
 
 @dp.message_handler(commands='start')
@@ -321,6 +327,21 @@ async def register_finish(message: types.Message, state: FSMContext):
         game = get_game(int(game_data["game_id"]))
         await message.answer(f'Вы зарегистрированы на игру {game["name_game"]}. Ожидайте сообщения о начале игры!')
         await state.finish()
+
+
+@dp.message_handler(commands=['getwishlists'])
+async def get_users_wishlists(message: types.Message, state: FSMContext):
+    await message.answer('Укажите id игры для которой хотите посмотреть вишлисты.')
+    await GetWishlistsOrder.game_id.set()
+
+
+@dp.message_handler(state=GetWishlistsOrder.game_id)
+async def print_wishlists_for_game(message: types.Message, state: FSMContext):
+    game_id = int(message.text)
+    game_users = get_game_users(game_id)
+    for user in game_users:
+        await message.answer(f'Вишлист пользователя {user["user_name"]}: {user["user_wishlist"]}')
+    await state.finish()
 
 
 @dp.message_handler(text='Отправить письмо санте!')
