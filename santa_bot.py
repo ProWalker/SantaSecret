@@ -45,6 +45,7 @@ class RegisterOrder(StatesGroup):
 @dp.message_handler(text='Отмена')
 @dp.message_handler(Text(equals="Отмена"), state="*")
 async def cmd_start(message: types.Message, state: FSMContext):
+    await set_commands(bot)
     if message.text == 'Отмена':
         await state.finish()
     if not message.text == '/start reg' or message.text == 'Отмена':
@@ -464,5 +465,4 @@ async def name_game(message: types.Message):
 
 if __name__ == '__main__':
     init_db()
-    await set_commands(bot)
     executor.start_polling(dp, skip_updates=True)
