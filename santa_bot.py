@@ -12,7 +12,7 @@ from datetime import date, timedelta
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import KeyboardButton
+from aiogram.types import KeyboardButton, BotCommand
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -172,6 +172,13 @@ async def logging_user(call: types.CallbackQuery):
     )
 
 
+async def set_commands(tg_bot: Bot):
+    commands = [
+        BotCommand(command='/getwishlists', description='Посмотреть вишлисты пользователей.')
+    ]
+    await tg_bot.set_my_commands(commands)
+
+
 def validate_email(email):
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     return bool(re.fullmatch(regex, email))
@@ -315,12 +322,6 @@ async def register_finish(message: types.Message, state: FSMContext):
         await state.finish()
 
 
-    user_data = await state.get_data()
-    add_user(user_data)
-    await state.finish()
-    await message.answer('🎅', reply_markup=keyboard)
-
-
 @dp.message_handler(text='Отправить письмо санте!')
 async def wish_sheet(message: types.Message):
     keyboard = types.InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
@@ -461,27 +462,7 @@ async def name_game(message: types.Message):
                              reply_markup=keyboard)
 
 
-# if __name__ == '__main__':
-#     init_db()
-#     executor.start_polling(dp, skip_updates=True)
-#
-#
-# date_today = datetime.datetime.today() + timedelta(seconds=10)
-# print(datetime.datetime.today())
-
-
-
 if __name__ == '__main__':
     init_db()
+    await set_commands(bot)
     executor.start_polling(dp, skip_updates=True)
-
-
-
-
-#
-# user_date = datetime.datetime(2021, 12, 31, 15, 39, 00)
-# # user_date = datetime.datetime(2021, 12, 17, 14, 46, 00)
-# print(user_date)
-# date_today = datetime.datetime.today() + timedelta(seconds=10)
-# print(date_today)
-# count_date = date_today - user_date
