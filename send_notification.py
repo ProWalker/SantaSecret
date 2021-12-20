@@ -42,6 +42,7 @@ def main():
                 message = f"""\
                             Subject: Тайный санта
 
+                            Название игры: {game["name_game"]}.
                             Вы должны отправить подарок пользователю {receiver["user_name"]}
                             на адрес {receiver["user_email"]}.
                             Предпочтения получателя {receiver["user_wishlist"]}.
